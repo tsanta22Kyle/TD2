@@ -9,6 +9,7 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor
 public class IngredientCrudRequests implements CrudRequests {
@@ -88,23 +89,23 @@ public class IngredientCrudRequests implements CrudRequests {
         return ingredientQuantities;
     }
 
-    @Override
-    public Object save(Object entity) {
+
+    public Optional<Object> save(Object entity) {
         throw new RuntimeException("not implemented yet");
     }
 
-    @Override
-    public List saveAll(List entities) {
+
+    public Optional<List> saveAll(List entities) {
         throw new RuntimeException("not implemented yet");
     }
 
-    @Override
+
     public void deleteById(String id) {
         throw new RuntimeException("not implemented yet");
 
     }
 
-    public List<Ingredient> findByFilterAndOrder(List<Criteria> criteriaList, Order order, int page, int size) {
+    public List<Ingredient> findByFilterAndOrder(List<Criteria> criteriaList, OrderBy order, int page, int size) {
         List<Ingredient> ingredients = new ArrayList<>();
         StringBuilder query = new StringBuilder("SELECT i.ingredient_id,i.name,i.update_datetime from ingredient i  join price p on p.ingredient_id = i.ingredient_id join latests l on l.ingredient_id = p.ingredient_id where p.date = l.latest and 1=1");
         criteriaList.stream().forEach(criteria -> {

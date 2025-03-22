@@ -49,8 +49,44 @@ CREATE TABLE stock_move(
     moveType moveType,
     quantity float ,
     unit unit,
-    move_date timestamp,
+    move_date timestamp default current_timestamp,
     CONSTRAINT ingredient_fk FOREIGN KEY (ingredient_id) REFERENCES ingredient(ingredient_id)
 );
 
 REVOKE UPDATE ON stock_move FROM public;
+CREATE TABLE "order"(
+    reference varchar unique ,
+    order_time timestamp default current_timestamp,
+    order_id varchar primary key
+);
+
+CREATE TABLE dish_order(
+    id varchar primary key ,
+    order_id varchar ,
+    dish_id varchar,
+    quantity int ,
+    CONSTRAINT order_fk FOREIGN KEY (order_id) REFERENCES "order"(order_id) ,
+    CONSTRAINT dish_fk FOREIGN KEY (dish_id) REFERENCES dish(dish_id)
+);
+CREATE TYPE order_advancement AS ENUM(
+    'CREATED','CONFIRMED','IN_PREPARATION','FINISHED','SERVED'
+    );
+
+CREATE TABLE order_status(
+    id varchar primary key ,
+    order_id varchar,
+    order_status order_advancement,
+    order_status_datetime timestamp default current_timestamp,
+    CONSTRAINT order_id FOREIGN KEY (order_id) REFERENCES "order"(order_id)
+);
+CREATE TABLE dish_order_status(
+  id varchar primary key ,
+  dish_order_id varchar,
+  order_status order_status,
+  do_datetime timestamp,
+  CONSTRAINT dish_order_id FOREIGN KEY (dish_order_id) REFERENCES dish_order(id)
+);
+
+
+
+

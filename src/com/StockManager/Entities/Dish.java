@@ -54,24 +54,44 @@ public class Dish {
         return this.getUnitPrice()-this.getIngredientToTalCost(date);
     }
     public double getAvailableQuantity(LocalDateTime dateTime){
-        DishCrudRequests dishCrudRequests = new DishCrudRequests();
-        IngredientCrudRequests ingredientCrudRequests = new IngredientCrudRequests();
-        List<StockMove> IngredientsFinalQuantities = ingredientCrudRequests.getTotalStockQuantityInDish(dishId, dateTime);
-        Dish thisDish = dishCrudRequests.findById(dishId);
+
         List<Double> quantities = new ArrayList<>();
-        //  double quantity = 0.0;
 
-        IngredientsFinalQuantities.forEach(stockMove -> {
-            int index = IngredientsFinalQuantities.indexOf(stockMove);
-            double quantity = thisDish.getIngredientList().get(index).getQuantity();
+         ingredientList.forEach(ingredientQuantity -> {
+             if(ingredientQuantity.getIngredient().getStockQuantityAt(dateTime).getQuantity()==0){
+                quantities.add(0.0);
+             }else {
 
-            quantities.add(stockMove.getQuantity()/quantity);
+          double quantity =  ingredientQuantity.getQuantity()/ingredientQuantity.getIngredient().getStockQuantityAt(dateTime).getQuantity();
+             quantities.add(quantity);
+             }
         });
+        if (quantities.isEmpty()) {
+            return 0.0;
+        }
+
+        return Math.round(quantities.stream().sorted((o1, o2) -> o1.compareTo(o2)).toList().get(0));
 
 
+    }
+    public double getAvailableQuantity(){
+        List<Double> quantities = new ArrayList<>();
 
-        return Math.round(quantities.stream().sorted((o1, o2) -> o1.compareTo(o2)).toList().getFirst());
-       // return dishCrudRequests.getAvailableQuantity(this.getDishId(),dateTime);
+        ingredientList.forEach(ingredientQuantity -> {
+            if(ingredientQuantity.getIngredient().getStockQuantityAt().getQuantity()==0){
+                quantities.add(0.0);
+            }else {
+
+                double quantity =  ingredientQuantity.getQuantity()/ingredientQuantity.getIngredient().getStockQuantityAt().getQuantity();
+                quantities.add(quantity);
+            }
+        });
+        if (quantities.isEmpty()) {
+            return 0.0;
+        }
+
+        return Math.round(quantities.stream().sorted((o1, o2) -> o1.compareTo(o2)).toList().get(0));
+
 
     }
 

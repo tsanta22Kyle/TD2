@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class DishCrudRequests implements CrudRequests<Dish> {
 
@@ -82,17 +83,17 @@ public class DishCrudRequests implements CrudRequests<Dish> {
         return dish;
     }
 
-    @Override
-    public Dish save(Dish dish) {
+
+    public Optional<Dish> save(Dish dish) {
         throw new RuntimeException("not implemented yet");
     }
 
-    @Override
-    public List<Dish> saveAll(List<Dish> entities) {
+
+    public Optional<List<Dish>> saveAll(List<Dish> entities) {
         throw new RuntimeException("not implemented yet");
     }
 
-    @Override
+
     public void deleteById(String id) {
         throw new RuntimeException("not implemented yet");
     }
@@ -213,9 +214,6 @@ public class DishCrudRequests implements CrudRequests<Dish> {
      return Math.round(quantities.stream().sorted((o1, o2) -> o1.compareTo(o2)).toList().getFirst());
     }
 
-    public static void main(String[] args) {
-        DishCrudRequests d = new DishCrudRequests();
-        System.out.println(d.getAvailableQuantity("1",LocalDateTime.now()));
-    }
+
 
 }

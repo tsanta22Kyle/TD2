@@ -3,10 +3,11 @@ package com.StockManager.Entities;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Getter@AllArgsConstructor@NoArgsConstructor
+@Getter@AllArgsConstructor@NoArgsConstructor@Setter
 public class IngredientQuantity {
     Ingredient ingredient;
     double quantity;
