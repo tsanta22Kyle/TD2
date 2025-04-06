@@ -70,7 +70,7 @@ public class DishOrder {
                             this.statusList.add(newStatus);
                         }
                         case FINISHED,DELIVERED -> {
-                            throw new IllegalArgumentException("not in prparation yet");
+                            throw new IllegalArgumentException("not in preparation yet");
                         }
                     }
             }

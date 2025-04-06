@@ -58,20 +58,20 @@ public class OrderIntegrationTests {
 
 
         Order order = new Order();
-        order.setId("001");
+        order.setId("002");
         order.setOrderDatetime(LocalDateTime.now());
         order.addDishOrder(List.of(dishOrder));
-        order.setReference("ORD101");
+        order.setReference("ORD102");
 
 
         // when
-        OrderCrudRequests orderCrud = new OrderCrudRequests();
-        orderCrud.save(order);
+
+        subject.saveAll(List.of(order));
 
         // then
-        Order savedOrder = subject.findById("ORD101");
+        Order savedOrder = subject.findById("ORD102");
         Assertions.assertNotNull(savedOrder);
-        Assertions.assertEquals("001", savedOrder.getId());
+        Assertions.assertEquals("002", savedOrder.getId());
         Assertions.assertEquals(1, savedOrder.getDishOrders().size());
         Assertions.assertEquals("hot dog", savedOrder.getDishOrders().get(0).getDish().getName());
 

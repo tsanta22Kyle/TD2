@@ -26,7 +26,27 @@ public class IngredientCrudRequests implements CrudRequests {
 
     @Override
     public List findAll(int page, int size) {
-        throw new RuntimeException("not implemented yet");
+        List<Ingredient> ingredients = new ArrayList<>();
+
+        try (
+                PreparedStatement statement = dataSource.getConnection().prepareStatement("SELECT ingredient_id, name, update_datetime FROM Ingredient")
+        ) {
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    Ingredient ingredient = new Ingredient();
+                    ingredient.setIngredientId(rs.getString(1));
+                    ingredient.setName(rs.getString(2));
+                    ingredient.setUpdateDatetime(rs.getTimestamp(3).toLocalDateTime());
+                    ingredient.setPrices(findPriceByIngredientId(ingredient.getIngredientId()));
+                    ingredients.add(ingredient);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        return ingredients;
     }
 
     @Override
@@ -97,6 +117,8 @@ public class IngredientCrudRequests implements CrudRequests {
 
     public Optional<List> saveAll(List entities) {
         throw new RuntimeException("not implemented yet");
+
+
     }
 
 

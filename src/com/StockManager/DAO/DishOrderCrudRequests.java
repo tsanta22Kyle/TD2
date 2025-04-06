@@ -196,19 +196,19 @@ public class DishOrderCrudRequests implements CrudRequests<DishOrder> {
 
 
 
-    public Optional<List<DishOrder>> saveAll(List<DishOrder> dishOrderList) {
+    public Optional<List<DishOrder>> saveAll(List<DishOrder> dishOrderList,String OrderId) {
         List<DishOrder> dishOrders = new ArrayList<>();
         try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement("INSERT INTO dish_order (id, order_id, dish_id, quantity)  VALUES (?,?,?,?)"
-                        + " on conflict (id) do update set quantity = excluded.quantity ,dish_id = excluded.dish_id, dish_id = excluded.dish_id "
-                        + "returning (id, order_id,dish_id,quantity)")
+                        + " on conflict (id) do update set quantity = excluded.quantity ,dish_id = excluded.dish_id "
+                        + "returning id, order_id,dish_id,quantity")
         ) {
 
             dishOrderList.forEach(DOToSave -> {
                 try {
                     statement.setString(1, DOToSave.getDishOrderId());
-                   // statement.setString(2, DOToSave.getOrderId());
+                   statement.setString(2, OrderId);
                     statement.setString(3, DOToSave.getDish().getDishId());
                     statement.setInt(4, DOToSave.getQuantity());
                     statement.addBatch();

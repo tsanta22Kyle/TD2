@@ -1,6 +1,7 @@
 package com.StockManager.DAO;
 
 import com.StockManager.DAO.mapper.OrderStatusMapper;
+import com.StockManager.Entities.DishOrder;
 import com.StockManager.Entities.Order;
 import com.StockManager.Entities.OrderProcess;
 import com.StockManager.Entities.OrderStatus;
@@ -74,11 +75,11 @@ public class OrderCrudRequests implements CrudRequests<Order> {
             ps.setObject(4, status.getOrderProcess().toString(), Types.OTHER);
 
             try (ResultSet rs = ps.executeQuery()) {
-                if(rs.next()) {
+                if (rs.next()) {
                     status1.setId(rs.getString("id"));
                     status1.setDishOrderStatusDatetime(rs.getTimestamp("order_status_datetime").toLocalDateTime());
                     status1.setOrderProcess(mapper.mapFormResultSet(rs.getObject("order_status").toString()));
-                }else {
+                } else {
                     throw new RuntimeException("can't create status for " + orderID);
                 }
             }
@@ -95,8 +96,8 @@ public class OrderCrudRequests implements CrudRequests<Order> {
         Order order1 = null;
         try (
                 Connection conn = dataSource.getConnection();
-                PreparedStatement ps = conn.prepareStatement("INSERT INTO \"order\" (reference, order_time, order_id) VALUES (?,?,?) "+
-                        "on conflict(reference) do update  SET order_time = excluded.order_time "+
+                PreparedStatement ps = conn.prepareStatement("INSERT INTO \"order\" (reference, order_time, order_id) VALUES (?,?,?) " +
+                        "on conflict(reference) do update  SET order_time = excluded.order_time " +
                         "returning reference, order_time, order_id")
         ) {
             ps.setString(1, order.getReference());
@@ -121,6 +122,50 @@ public class OrderCrudRequests implements CrudRequests<Order> {
 
     }
 
+
+    public Optional<List<Order>> saveAll(List<Order> orders) {
+        List<Order> ordersCreated = new ArrayList<>();
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement ps = conn.prepareStatement("INSERT INTO \"order\" (reference, order_time, order_id) VALUES (?,?,?) " +
+                        "on conflict (reference) do update set order_time = excluded.order_time " +
+                        "returning reference, order_time, order_id")
+        ) {
+            orders.forEach(order -> {
+                try {
+                    ps.setString(1, order.getReference());
+                    ps.setTimestamp(2, Timestamp.valueOf(order.getOrderDatetime()));
+                    ps.setString(3, order.getId());
+                    OrderStatus statusCreated = new OrderStatus();
+                    for (DishOrder dishOrder : order.getDishOrderList()) {
+                    dishOrderCrudRequests.save(dishOrder, order.getId());
+                    }
+
+                    try (
+                            ResultSet rs = ps.executeQuery()
+                    ) {
+                        if (rs.next()) {
+                            statusCreated.setOrderProcess(OrderProcess.CREATED);
+                            statusCreated.setId(UUID.randomUUID().toString());
+                            statusCreated.setDishOrderStatusDatetime(LocalDateTime.now());
+                            createStatus(statusCreated, order.getId());
+
+
+                            ordersCreated.add(MapFromResultSet(rs));
+                        }
+                    }
+
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return Optional.of(ordersCreated);
+    }
 
     public Order MapFromResultSet(ResultSet rs) {
         Order order = new Order();
